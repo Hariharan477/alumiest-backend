@@ -1,0 +1,8 @@
+node_modules/
+.env
+prisma/dev.db
+npm-debug.log
+error_full.txt
+error.log
+test.mjs
+check_db.mjs

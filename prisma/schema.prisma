@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  role      String   // STUDENT, ALUMNI, ADMIN
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  alumniProfile  Alumni?
+  studentProfile Student?
+}
+
+model Alumni {
+  id         Int      @id @default(autoincrement())
+  userId     Int      @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  batch      String
+  department String
+  company    String
+  role       String
+  skills     String
+  location   String
+  
+  mentorRequestsMentor MentorRequest[] @relation("MentorRequestsAsMentor")
+  jobsPosted           Job[]
+}
+
+model Student {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  department  String
+  skills      String
+  career_goal String
+
+  mentorRequestsStudent MentorRequest[] @relation("MentorRequestsAsStudent")
+}
+
+model Job {
+  id          Int      @id @default(autoincrement())
+  title       String
+  company     String
+  description String
+  posted_byId Int
+  postedBy    Alumni   @relation(fields: [posted_byId], references: [id])
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  name        String
+  date        DateTime
+  location    String
+  description String
+}
+
+model MentorRequest {
+  id          Int      @id @default(autoincrement())
+  studentId   Int
+  student     Student  @relation("MentorRequestsAsStudent", fields: [studentId], references: [id])
+  alumniId    Int
+  alumni      Alumni   @relation("MentorRequestsAsMentor", fields: [alumniId], references: [id])
+  status      String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+}
